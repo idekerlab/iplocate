@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: iplocate-v1
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: v1.iplocate.cytoscape.io.
+  labels:
+    service: iplocate-v1
+    version: v1
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: locate-http
+  selector:
+    app: iplocate-v1
+  externalTrafficPolicy: "Local"
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: iplocate-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: iplocate-v1
+        version: v3
+    spec:
+      containers:
+      - name: iplocate
+        imagePullPolicy: Always
+        image: gcr.io/cytoscape-cloud-test/iplocate:v1
+        ports:
+          - name: locate-http
+            containerPort: 80
